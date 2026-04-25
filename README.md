@@ -223,6 +223,4 @@ src/main/java/com/virality/
     └── ViralityScoreService.java
 ```
 
-## License
 
-This project is created for educational purposes.
