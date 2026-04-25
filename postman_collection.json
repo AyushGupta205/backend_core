@@ -1,0 +1,302 @@
+{
+  "info": {
+    "_postman_id": "virality-backend-core",
+    "name": "Backend Core - Virality Engine API",
+    "description": "Postman collection for testing the Virality Engine & API Gateway",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Setup - Create Test Data",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"john_doe\",\n    \"isPremium\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/setup/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["setup", "users"]
+            },
+            "description": "Create a test user. Returns user ID."
+          }
+        },
+        {
+          "name": "Create Bot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"HelpfulBot\",\n    \"personaDescription\": \"A friendly bot that helps users\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/setup/bots",
+              "host": ["{{baseUrl}}"],
+              "path": ["setup", "bots"]
+            },
+            "description": "Create a test bot. Returns bot ID."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "Create Post (User)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"authorId\": 1,\n    \"authorType\": \"USER\",\n    \"content\": \"This is my first post! Excited to share with everyone.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts"]
+            },
+            "description": "Create a new post by a user."
+          }
+        },
+        {
+          "name": "Create Post (Bot)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"authorId\": 1,\n    \"authorType\": \"BOT\",\n    \"content\": \"Automated post from bot system.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts"]
+            },
+            "description": "Create a new post by a bot."
+          }
+        },
+        {
+          "name": "Like Post",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"userId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts/{{postId}}/like",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}", "like"]
+            },
+            "description": "Like a post. Increases virality score by 20 points."
+          }
+        },
+        {
+          "name": "Get Post with Virality Score",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/posts/{{postId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}"]
+            },
+            "description": "Get post details including real-time virality score from Redis."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "Add Comment (User)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"authorId\": 1,\n    \"authorType\": \"USER\",\n    \"content\": \"Great post! Thanks for sharing.\",\n    \"parentCommentId\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts/{{postId}}/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}", "comments"]
+            },
+            "description": "Add a comment by a user. Increases virality score by 50 points."
+          }
+        },
+        {
+          "name": "Add Comment (Bot - Top Level)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"authorId\": 1,\n    \"authorType\": \"BOT\",\n    \"content\": \"Bot reply to the post!\",\n    \"parentCommentId\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts/{{postId}}/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}", "comments"]
+            },
+            "description": "Add a bot comment. Subject to Horizontal Cap (100 limit), Cooldown Cap (10 min). Increases virality by 1 point."
+          }
+        },
+        {
+          "name": "Add Nested Comment (Reply)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"authorId\": 1,\n    \"authorType\": \"USER\",\n    \"content\": \"Replying to your comment!\",\n    \"parentCommentId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts/{{postId}}/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}", "comments"]
+            },
+            "description": "Add a nested comment. Depth level calculated automatically. Subject to Vertical Cap (max 20 depth)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Guardrails Testing",
+      "item": [
+        {
+          "name": "Test Horizontal Cap (429 after 100 bot comments)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"authorId\": 1,\n    \"authorType\": \"BOT\",\n    \"content\": \"Bot comment for horizontal cap test\",\n    \"parentCommentId\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts/{{postId}}/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}", "comments"]
+            },
+            "description": "Send 100+ requests to test horizontal cap. Requests after 100 should return 429."
+          }
+        },
+        {
+          "name": "Test Cooldown Cap (429 within 10 min)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"authorId\": 1,\n    \"authorType\": \"BOT\",\n    \"content\": \"Second comment within 10 minutes\",\n    \"parentCommentId\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts/{{postId}}/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}", "comments"]
+            },
+            "description": "Second bot comment to same user within 10 minutes should return 429."
+          }
+        },
+        {
+          "name": "Test Vertical Cap (429 after depth 20)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"authorId\": 1,\n    \"authorType\": \"BOT\",\n    \"content\": \"Deep nested comment at depth 21\",\n    \"parentCommentId\": {{parentCommentId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts/{{postId}}/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}", "comments"]
+            },
+            "description": "Create nested comments up to depth 20. Depth 21+ should return 429."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api",
+      "type": "string"
+    },
+    {
+      "key": "postId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "parentCommentId",
+      "value": "1",
+      "type": "string"
+    }
+  ]
+}
