@@ -222,5 +222,7 @@ src/main/java/com/virality/
     ├── PostService.java
     └── ViralityScoreService.java
 ```
+## License
 
+This project was created as part of a Backend Engineering Internship Assignment.
 
